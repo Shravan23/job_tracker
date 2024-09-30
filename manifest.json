@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Gmail Top 10 Emails",
+  "version": "1.0",
+  "description": "Retrieves the top 10 email subject lines from Gmail.",
+  "permissions": [
+    "storage",
+    "identity",
+    "identity.email"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "oauth2": {
+    "client_id": "712541534647-2bmbh1c6js05tsttkq67fordllrqjc0d.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/gmail.readonly"
+    ]
+  },
+  "action": {
+    "default_popup": "popup.html"
+  }
+}

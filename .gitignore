@@ -20,15 +20,16 @@ coverage/
 .DS_Store
 Thumbs.db
 
-
-
 # IDE specific files
 .vscode/
 .idea/
 *.sublime-project
 *.sublime-workspace
 
-# Secreets
+# Secrets
 .env
-.DS_Store
 secrets.json
+.DS_Store
+
+# Ignore Husky-generated files
+.husky/_/husky.sh # Only ignore the internal Husky script, not the whole directory

@@ -3,7 +3,6 @@ import { fetchEmails } from './utils.js'; // Import fetchEmails from utils.js
 
 document.addEventListener('DOMContentLoaded', () => {
   const authButton = document.getElementById('auth-button');
-  const emailList = document.getElementById('email-list');
   const accessToken = localStorage.getItem('access_token');
 
   if (!accessToken) {

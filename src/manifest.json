@@ -9,7 +9,7 @@
     "identity.email"
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.bundle.js"
   },
   "oauth2": {
     "client_id": "712541534647-2bmbh1c6js05tsttkq67fordllrqjc0d.apps.googleusercontent.com",

@@ -1,0 +1,37 @@
+name: CI - Run Tests
+
+# Controls when the action will run
+on:
+  push:          # Triggers when you push to the repository
+    branches:
+      - main     # This will run for pushes to the `main` branch (you can change this to any branch)
+  pull_request:  # Triggers when a pull request is created or updated
+
+jobs:
+  test:
+    runs-on: ubuntu-latest   # The latest version of Ubuntu will be used for the runner
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2   # This checks out the repository's code
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'        # Specify the Node.js version (adjust to your version)
+
+      - name: Install dependencies
+        run: npm install            # Install all dependencies
+
+      - name: Run tests
+        run: npm test               # Run your test cases using the `npm test` command
+
+      - name: Test results
+        if: failure()
+        run: |
+          echo "Test failed, please check the test cases before pushing."
+          exit 1
+
+      - name: Success message
+        if: success()
+        run: echo "All tests passed!"

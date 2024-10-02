@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Job Application Tracker</title>
   <link rel="stylesheet" href="styles/popup.css" />
 </head>
+
 <body>
   <h3>Your Top 10 Job Application Emails:</h3>
-  <!-- Button for authentication -->
   <button id="auth-button">Sign in with Google</button>
-  <!-- List to display email subjects -->
+  <div id="loading-message"></div>
   <ul id="email-list"></ul>
 
-  <script type="module" src="popup.bundle.js"></script> <!-- Ensure this path points to the correct bundled JS file -->
+  <script type="module" src="popup.bundle.js"></script>
 </body>
+
 </html>

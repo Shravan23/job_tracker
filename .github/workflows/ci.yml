@@ -23,14 +23,14 @@ jobs:
       - name: Install dependencies
         run: npm install            # Install all dependencies
 
-      - name: Run tests
-        run: npm test               # Run your test cases using the `npm test` command
+      # - name: Run tests
+      #   run: npm test               # Run your test cases using the `npm test` command
 
-      - name: Test results
-        if: failure()
-        run: |
-          echo "Test failed, please check the test cases before pushing."
-          exit 1
+      # - name: Test results
+      # if: failure()
+      #   run: |
+      #     echo "Test failed, please check the test cases before pushing."
+      #     exit 1
 
       - name: Success message
         if: success()

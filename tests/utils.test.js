@@ -1,38 +1,116 @@
-import { parseEmails } from '../src/utils';
+// tests/utils.test.js
 
-describe('parseEmails', () => {
+import { JSDOM } from 'jsdom';
+
+describe('Utils Script', () => {
+  let fetchEmails;
+  let displayMessage;
+  let emailList;
+  let dom;
+
   beforeEach(() => {
-    // Setup the DOM structure
-    document.body.innerHTML = '<ul id="email-list"></ul>';
+    jest.resetModules();
+
+    // Set up DOM
+    dom = new JSDOM(`
+      <!DOCTYPE html>
+      <html>
+      <body>
+        <ul id="email-list"></ul>
+        <button id="auth-button"></button>
+        <div id="loading-message"></div>
+      </body>
+      </html>
+    `);
+
+    global.window = dom.window;
+    global.document = dom.window.document;
+
+    emailList = document.getElementById('email-list');
+
+    // Mock chrome APIs
+    global.chrome = {
+      identity: {
+        getAuthToken: jest.fn(),
+        removeCachedAuthToken: jest.fn(),
+      },
+      runtime: {
+        lastError: null,
+      },
+    };
+
+    // Mock fetch
+    global.fetch = jest.fn();
+
+    // Now require utils.js after setting up document
+    ({ fetchEmails, displayMessage } = require('../src/utils'));
+
+    fetch.mockClear();
+    chrome.identity.removeCachedAuthToken.mockClear();
+    chrome.identity.getAuthToken.mockClear();
   });
 
-  it('should parse emails and add them to the DOM', async () => {
-    const messages = [
-      {
-        id: '123',
-      },
-    ];
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
-    // Mock fetch call for the email message
-    global.fetch = jest.fn(() =>
-      Promise.resolve({
-        json: () =>
-          Promise.resolve({
-            payload: {
-              headers: [{ name: 'Subject', value: 'Job Application' }],
-            },
-          }),
+  test('should fetch emails successfully', async () => {
+    const accessToken = 'fake-token';
+    const messages = [{ id: '12345' }];
+    const emailData = { messages };
+
+    fetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: jest.fn().mockResolvedValue(emailData),
       })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: jest.fn().mockResolvedValue({
+          payload: {
+            headers: [{ name: 'Subject', value: 'Test Email' }],
+          },
+        }),
+      });
+
+    await fetchEmails(accessToken);
+
+    expect(fetch).toHaveBeenCalled();
+    expect(emailList.innerHTML).toContain('Test Email');
+  });
+
+  test('should handle token expiration and retry', async () => {
+    const accessToken = 'expired-token';
+    const newAccessToken = 'new-token';
+
+    fetch.mockResolvedValueOnce({
+      ok: false,
+      status: 401,
+    });
+
+    chrome.identity.removeCachedAuthToken.mockImplementation((options, callback) => {
+      callback();
+    });
+
+    chrome.identity.getAuthToken.mockImplementation((options, callback) => {
+      callback(newAccessToken);
+    });
+
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue({ messages: [] }),
+    });
+
+    await fetchEmails(accessToken);
+
+    expect(chrome.identity.removeCachedAuthToken).toHaveBeenCalledWith(
+      { token: accessToken },
+      expect.any(Function)
     );
-
-    // Call parseEmails function and wait for it to finish
-    await parseEmails(messages, 'dummy_token');
-
-    // Ensure the email list is updated
-    const emailList = document.getElementById('email-list');
-    console.log('Email list:', emailList.innerHTML);
-
-    expect(emailList.children.length).toBe(1); // Check that one child was added
-    expect(emailList.textContent).toBe('Job Application'); // Ensure the content is correct
+    expect(chrome.identity.getAuthToken).toHaveBeenCalledWith(
+      { interactive: false },
+      expect.any(Function)
+    );
+    expect(fetch).toHaveBeenCalledTimes(2);
   });
 });

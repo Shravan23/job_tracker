@@ -2,7 +2,7 @@
 
 export function fetchEmails(accessToken) {
   return fetch(
-    'https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=10&q=job+application',
+    'https://gmail.googleapis.com/gmail/v1/users/me/messages',
     {
       headers: {
         Authorization: 'Bearer ' + accessToken,
